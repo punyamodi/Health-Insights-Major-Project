@@ -1,0 +1,5 @@
+{
+  "name": "AI Medical Diagnostic System",
+  "description": "An AI-powered system that uses a multi-agent approach to analyze medical reports. Specialized AI agents, representing different medical fields, provide comprehensive assessments, and a multidisciplinary team agent generates a final, integrated diagnosis highlighting key health issues.",
+  "requestFramePermissions": []
+}
