@@ -1,5 +1,5 @@
 
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Chat } from "@google/genai";
 import { MedicalSpecialty, PatientHistory, SpecialistAnalysis } from '../types';
 
 if (!process.env.API_KEY) {
@@ -27,10 +27,16 @@ const getSpecialistPromptTemplate = (specialty: MedicalSpecialty, report: string
   
   Focus ONLY on aspects relevant to ${specialty}.
   
-  Provide your analysis in a structured JSON format. The JSON object must contain three keys: "keyFindings", "potentialConditions", and "recommendations". Each key should have an array of strings as its value.
+  Provide your analysis in a structured JSON format. The JSON object must contain four keys: "summary", "keyFindings", "potentialConditions", and "recommendations".
+  
+  1. "summary": A concise 2-3 sentence overview of your diagnosis and assessment from your specialist perspective.
+  2. "keyFindings": An array of strings detailing specific observations.
+  3. "potentialConditions": An array of strings listing diagnoses to consider.
+  4. "recommendations": An array of strings listing tests, treatments, or referrals.
   
   Example response format:
   {
+    "summary": "Based on the cardiac rhythm anomalies, there is a high likelihood of...",
     "keyFindings": ["Finding 1", "Finding 2"],
     "potentialConditions": ["Condition 1", "Condition 2"],
     "recommendations": ["Recommendation 1", "Recommendation 2"]
@@ -151,4 +157,23 @@ export const generateFinalDiagnosis = async (
     console.error('Error generating final diagnosis:', error);
     return 'An error occurred while generating the final integrated diagnosis. Please check the console for details.';
   }
+};
+
+export const getChatSession = (context: string): Chat => {
+  return ai.chats.create({
+    model: 'gemini-2.5-flash',
+    config: {
+      systemInstruction: `You are a highly knowledgeable and empathetic medical AI assistant helping a user understand a complex medical diagnosis.
+      
+      You have access to the following context:
+      ${context}
+
+      **Guidelines:**
+      1. Answer the user's questions based strictly on the provided context (Patient Data, Specialist Reports, and Final Diagnosis).
+      2. If a user asks about something not in the report, answer based on general medical knowledge but explicitly state that it is not part of the specific case file.
+      3. Be clear, concise, and avoid overly technical jargon unless you explain it.
+      4. Always maintain a professional and supportive tone.
+      5. If the user asks for medical advice that requires immediate intervention, advise them to consult a doctor or emergency services immediately.`
+    }
+  });
 };

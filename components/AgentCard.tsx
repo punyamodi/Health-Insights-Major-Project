@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import SpecialtyIcon, { ChevronDownIcon, ChevronUpIcon } from './icons';
 import { Agent, SpecialistReport } from '../types';
@@ -9,39 +10,48 @@ interface AgentCardProps {
 
 const renderAnalysis = (analysis: SpecialistReport['analysis']) => {
   if (typeof analysis === 'string') {
-    return <p className="text-sm text-[var(--c-error)]">{analysis}</p>;
+    return <p className="text-sm text-[var(--c-error)] bg-red-50 p-3 rounded-md border border-red-100">{analysis}</p>;
   }
 
   if (analysis && typeof analysis === 'object') {
-    const { keyFindings, potentialConditions, recommendations } = analysis;
+    const { summary, keyFindings, potentialConditions, recommendations } = analysis;
     const hasContent = (arr: string[] | undefined) => arr && arr.length > 0;
     
-    if (!hasContent(keyFindings) && !hasContent(potentialConditions) && !hasContent(recommendations)) {
-        return <p className="text-sm text-[var(--c-text-secondary)]">No specific findings for this specialty.</p>
-    }
-
     return (
       <div className="space-y-4 text-sm">
+        {/* Summary Section */}
+        {summary && (
+             <div className="bg-blue-50/50 p-3 rounded-lg border border-blue-100/50">
+                <p className="text-slate-700 italic leading-relaxed font-medium">"{summary}"</p>
+            </div>
+        )}
+
         {hasContent(keyFindings) && (
             <div>
-            <h4 className="font-semibold text-[var(--c-text-primary)] mb-2 text-xs uppercase tracking-wider">Key Findings</h4>
-            <ul className="list-disc list-inside text-[var(--c-text-secondary)] space-y-1.5">
+            <h4 className="font-bold text-slate-900 mb-1.5 text-xs uppercase tracking-wider flex items-center gap-2">
+                <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> Key Findings
+            </h4>
+            <ul className="list-disc list-outside ml-4 text-slate-600 space-y-1 marker:text-blue-300">
                 {keyFindings?.map((item, index) => <li key={`kf-${index}`}>{item}</li>)}
             </ul>
             </div>
         )}
         {hasContent(potentialConditions) && (
             <div>
-            <h4 className="font-semibold text-[var(--c-text-primary)] mb-2 text-xs uppercase tracking-wider">Potential Conditions</h4>
-            <ul className="list-disc list-inside text-[var(--c-text-secondary)] space-y-1.5">
+            <h4 className="font-bold text-slate-900 mb-1.5 text-xs uppercase tracking-wider flex items-center gap-2">
+                <span className="w-1.5 h-1.5 bg-amber-500 rounded-full"></span> Potential Conditions
+            </h4>
+            <ul className="list-disc list-outside ml-4 text-slate-600 space-y-1 marker:text-amber-300">
                 {potentialConditions?.map((item, index) => <li key={`pc-${index}`}>{item}</li>)}
             </ul>
             </div>
         )}
         {hasContent(recommendations) && (
             <div>
-            <h4 className="font-semibold text-[var(--c-text-primary)] mb-2 text-xs uppercase tracking-wider">Recommendations</h4>
-            <ul className="list-disc list-inside text-[var(--c-text-secondary)] space-y-1.5">
+            <h4 className="font-bold text-slate-900 mb-1.5 text-xs uppercase tracking-wider flex items-center gap-2">
+                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> Recommendations
+            </h4>
+            <ul className="list-disc list-outside ml-4 text-slate-600 space-y-1 marker:text-emerald-300">
                 {recommendations?.map((item, index) => <li key={`r-${index}`}>{item}</li>)}
             </ul>
             </div>
@@ -57,68 +67,74 @@ const AgentCard: React.FC<AgentCardProps> = ({ agent, report }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
-    // Expand the card by default when analysis is complete
+    // Expand the card by default if it is complete
     if (report.status === 'complete') {
       setIsExpanded(true);
-    } else {
-      setIsExpanded(false);
     }
   }, [report.status]);
 
-  const getStatusInfo = (): { color: string, text: string, animate: boolean } => {
-    switch(report.status) {
-        case 'complete': return { color: 'var(--c-success)', text: 'Complete', animate: false };
-        case 'loading': return { color: 'var(--c-primary)', text: 'Analyzing...', animate: true };
-        case 'error': return { color: 'var(--c-error)', text: 'Error', animate: false };
-        default: return { color: 'var(--c-text-secondary)', text: 'Pending', animate: false };
-    }
-  }
-
-  const { color, text, animate } = getStatusInfo();
+  const getStatusColor = () => {
+      switch(report.status) {
+          case 'complete': return 'bg-emerald-500';
+          case 'loading': return 'bg-blue-500';
+          case 'error': return 'bg-red-500';
+          default: return 'bg-slate-300';
+      }
+  };
 
   return (
-    <div className="bg-[var(--c-surface)] rounded-2xl overflow-hidden shadow-md border border-[var(--c-border)] transition-all duration-300">
-      <button 
-        className="w-full p-5 text-left" 
+    <div className={`bg-white rounded-xl transition-all duration-300 flex flex-col h-full ${report.status === 'loading' ? 'shadow-lg ring-2 ring-blue-100 border-transparent' : 'shadow-sm border border-slate-200 hover:shadow-md'}`}>
+      
+      {/* Card Header */}
+      <div 
+        className="p-5 flex items-start justify-between cursor-pointer select-none" 
         onClick={() => setIsExpanded(!isExpanded)}
-        disabled={report.status !== 'complete'}
       >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="flex-shrink-0">
-              <div className="p-3 rounded-full bg-[var(--c-bg)]">
-                <SpecialtyIcon specialty={agent.name} className="text-[var(--c-text-secondary)]" />
-              </div>
+        <div className="flex items-center gap-4">
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors duration-300 flex-shrink-0 ${report.status === 'complete' ? 'bg-green-50 text-green-600' : 'bg-slate-50 text-slate-400'}`}>
+                <SpecialtyIcon specialty={agent.name} className={`w-6 h-6 ${report.status === 'loading' ? 'animate-pulse text-blue-500' : ''}`} />
             </div>
             <div>
-              <div className="text-base font-semibold text-[var(--c-text-primary)]">{agent.name}</div>
-              <div className="flex items-center space-x-2 mt-1">
-                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }}></div>
-                <p className={`text-xs font-medium ${animate ? 'animate-pulse' : ''}`} style={{ color: color }}>
-                    {text}
-                </p>
-              </div>
+                <h3 className="font-bold text-slate-800 text-base leading-tight">{agent.name}</h3>
+                <div className="flex items-center gap-2 mt-1">
+                    <span className={`block w-1.5 h-1.5 rounded-full ${getStatusColor()} ${report.status === 'loading' ? 'animate-pulse' : ''}`}></span>
+                    <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                        {report.status === 'loading' ? 'Analyzing...' : report.status === 'complete' ? 'Analysis Ready' : report.status}
+                    </span>
+                </div>
             </div>
-          </div>
-          {report.status === 'complete' && (
-            <div className="text-[var(--c-text-secondary)]">
+        </div>
+        {report.status === 'complete' && (
+             <div className="text-slate-400 hover:text-slate-600 transition-colors">
                 {isExpanded ? <ChevronUpIcon className="w-5 h-5" /> : <ChevronDownIcon className="w-5 h-5" />}
             </div>
-          )}
-        </div>
-      </button>
+        )}
+      </div>
 
-      {isExpanded && report.status === 'complete' && (
-        <div className="px-5 pb-5 mt-2 border-t border-[var(--c-border)] pt-4">
-          {renderAnalysis(report.analysis)}
-        </div>
+      {/* Content */}
+      {report.status === 'complete' && isExpanded && (
+          <div className="px-5 pb-6 pt-0 flex-grow border-t border-slate-50 animate-slideInBottom">
+             <div className="mt-4">
+               {renderAnalysis(report.analysis)}
+             </div>
+          </div>
       )}
 
-      {report.status === 'error' && (
-        <div className="px-5 pb-5 mt-2 border-t border-[var(--c-border)] pt-4">
-          <p className="text-sm text-[var(--c-error)]">{typeof report.analysis === 'string' ? report.analysis : "An unknown error occurred."}</p>
-        </div>
+      {/* Loading Skeleton */}
+      {report.status === 'loading' && (
+          <div className="px-5 pb-6 pt-2 space-y-3 opacity-50">
+              <div className="h-2 bg-slate-100 rounded w-3/4 animate-pulse"></div>
+              <div className="h-2 bg-slate-100 rounded w-1/2 animate-pulse"></div>
+              <div className="h-2 bg-slate-100 rounded w-5/6 animate-pulse"></div>
+          </div>
       )}
+      
+      {report.status === 'pending' && (
+          <div className="px-5 pb-6 pt-0">
+               <p className="text-xs text-slate-400 italic">Waiting for data stream...</p>
+          </div>
+      )}
+
     </div>
   );
 };

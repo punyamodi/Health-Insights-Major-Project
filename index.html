@@ -1,32 +1,88 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI Medical Diagnostic System</title>
+    <title>Health Insights</title>
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
       :root {
-        --c-primary: #1E88E5;
-        --c-primary-dark: #1565C0;
-        --c-secondary: #26A69A;
-        --c-bg: #F9FAFB;
+        --c-primary: #0284c7; /* Sky 600 */
+        --c-primary-dark: #0369a1; /* Sky 700 */
+        --c-secondary: #0d9488; /* Teal 600 */
+        --c-bg: #f8fafc;
         --c-surface: #FFFFFF;
-        --c-text-primary: #1F2937;
-        --c-text-secondary: #6B7280;
-        --c-border: #E5E7EB;
-        --c-error: #E53935;
-        --c-success: #43A047;
-        --c-highlight: #E3F2FD;
+        --c-text-primary: #0f172a;
+        --c-text-secondary: #475569;
+        --c-border: #e2e8f0;
+        --c-error: #ef4444;
+        --c-success: #22c55e;
+        --c-highlight: #e0f2fe;
       }
       body {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: var(--c-bg);
+        color: var(--c-text-primary);
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden; /* Prevent horizontal scroll */
+      }
+      
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f1f1; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1; 
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8; 
+      }
+
+      @keyframes pulse-slow {
+        0%, 100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.4); }
+        50% { transform: translate(-50%, -50%) scale(1.05); box-shadow: 0 0 0 15px rgba(2, 132, 199, 0); }
+      }
+      .animate-pulse-slow {
+        animation: pulse-slow 3s infinite;
+      }
+
+      @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-6px); }
+      }
+      .animate-float {
+        animation: float 4s ease-in-out infinite;
+      }
+
+      @keyframes slideInBottom {
+          from { transform: translateY(20px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+      }
+      .animate-slideInBottom {
+          animation: slideInBottom 0.5s ease-out forwards;
+      }
+      .slide-in-bottom {
+          animation: slideInBottom 0.5s ease-out forwards;
+      }
+      
+      @keyframes dash {
+          to { stroke-dashoffset: -20; }
+      }
+
+      .glass-effect {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
       }
     </style>
   <script type="importmap">
@@ -41,8 +97,8 @@
 }
 </script>
 </head>
-  <body class="bg-[var(--c-bg)]">
-    <div id="root"></div>
+  <body class="bg-[var(--c-bg)] min-h-screen flex flex-col">
+    <div id="root" class="flex-grow flex flex-col"></div>
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>

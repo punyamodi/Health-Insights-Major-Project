@@ -19,6 +19,7 @@ export interface Agent {
 }
 
 export interface SpecialistAnalysis {
+  summary: string;
   keyFindings: string[];
   potentialConditions: string[];
   recommendations: string[];

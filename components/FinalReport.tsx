@@ -1,6 +1,8 @@
+
 import React from 'react';
 import { marked } from 'marked';
 import { FinalReport } from '../types';
+import { LogoIcon } from './icons';
 
 interface FinalReportProps {
   report: FinalReport;
@@ -8,39 +10,89 @@ interface FinalReportProps {
 
 const FinalReportComponent: React.FC<FinalReportProps> = ({ report }) => {
   return (
-    <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 bg-[var(--c-surface)] rounded-2xl shadow-lg border border-[var(--c-border)] p-6 md:p-8">
-      <h2 className="text-2xl font-bold text-[var(--c-text-primary)] mb-6">
-        Multidisciplinary Team Diagnosis
-      </h2>
-      
-      {report.status === 'loading' && (
-        <div className="flex flex-col items-center justify-center min-h-[200px] text-[var(--c-primary)] space-y-4">
-          <svg className="animate-spin h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          <span className="text-lg font-medium text-center">Synthesizing reports and generating final diagnosis...</span>
-          <p className="text-sm text-[var(--c-text-secondary)] text-center">This may take a moment, as the lead AI physician reviews all findings.</p>
-        </div>
-      )}
+    <div className="bg-white rounded-none sm:rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+      {/* Report Header */}
+      <div className="bg-slate-900 text-white p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex items-center gap-3">
+              <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
+                 <LogoIcon className="w-8 h-8 text-teal-400" />
+              </div>
+              <div>
+                  <h2 className="text-2xl font-bold tracking-tight">Medical Consensus Report</h2>
+                  <p className="text-slate-400 text-sm">Integrated Multi-Agent Diagnosis</p>
+              </div>
+          </div>
+          {report.status === 'complete' && (
+            <div className="flex items-center gap-2 text-xs font-mono bg-white/10 px-3 py-1.5 rounded-full border border-white/20">
+                <span className="w-2 h-2 bg-green-400 rounded-full"></span>
+                FINALIZED
+            </div>
+          )}
+      </div>
 
-      {report.status === 'complete' && (
-        <div 
-          className="prose prose-slate max-w-none prose-h2:text-xl prose-h2:font-semibold prose-h3:font-semibold prose-li:marker:text-[var(--c-text-secondary)]" 
-          dangerouslySetInnerHTML={{ __html: marked.parse(report.summary) as string }} 
-        />
-      )}
+      {/* Report Content */}
+      <div className="p-6 sm:p-10 min-h-[400px]">
+        {report.status === 'loading' && (
+            <div className="flex flex-col items-center justify-center h-full py-20 space-y-6">
+                <div className="relative w-16 h-16">
+                    <div className="absolute inset-0 border-4 border-slate-100 rounded-full"></div>
+                    <div className="absolute inset-0 border-4 border-[var(--c-primary)] rounded-full border-t-transparent animate-spin"></div>
+                    <LogoIcon className="absolute inset-0 m-auto w-6 h-6 text-[var(--c-primary)] animate-pulse" />
+                </div>
+                <div className="text-center">
+                    <h3 className="text-lg font-bold text-slate-800">Synthesizing Specialist Reports</h3>
+                    <p className="text-slate-500 text-sm mt-1 max-w-md mx-auto">The lead medical AI is reviewing findings from all active agents to generate a cohesive diagnosis.</p>
+                </div>
+            </div>
+        )}
 
-      {report.status === 'error' && (
-         <p className="text-lg text-[var(--c-error)]">{report.summary}</p>
-      )}
+        {report.status === 'complete' && (
+            <div className="max-w-4xl mx-auto">
+                <div className="mb-8 pb-6 border-b border-slate-100 flex justify-between items-end">
+                    <div className="space-y-1">
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Report Type</p>
+                        <p className="font-serif text-xl text-slate-800 italic">Comprehensive Diagnostic Assessment</p>
+                    </div>
+                    <div className="text-right hidden sm:block">
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Date</p>
+                        <p className="text-sm text-slate-800">{new Date().toLocaleDateString()}</p>
+                    </div>
+                </div>
 
-      {report.status === 'pending' && (
-         <div className="min-h-[200px] flex items-center justify-center">
-            <p className="text-base text-[var(--c-text-secondary)]">Awaiting specialist reports to generate final diagnosis.</p>
-         </div>
-      )}
+                <div 
+                className="prose prose-slate prose-lg max-w-none 
+                    prose-headings:font-bold prose-headings:text-slate-900 
+                    prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-h2:pb-2 prose-h2:border-b prose-h2:border-slate-200
+                    prose-h3:text-lg prose-h3:text-[var(--c-primary-dark)] prose-h3:uppercase prose-h3:tracking-wide prose-h3:mt-6
+                    prose-p:leading-relaxed prose-p:text-slate-700
+                    prose-li:text-slate-700 prose-strong:text-slate-900
+                    prose-blockquote:border-l-4 prose-blockquote:border-[var(--c-primary)] prose-blockquote:bg-blue-50 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:not-italic" 
+                dangerouslySetInnerHTML={{ __html: marked.parse(report.summary) as string }} 
+                />
+                
+                <div className="mt-12 pt-8 border-t-2 border-slate-100 flex items-center justify-center gap-2 opacity-50">
+                    <LogoIcon className="w-4 h-4 text-slate-400" />
+                    <p className="text-xs text-slate-400 font-medium">End of Clinical Report • Health Insights AI</p>
+                </div>
+            </div>
+        )}
 
+        {report.status === 'error' && (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-6 flex items-start gap-4">
+                <svg className="w-6 h-6 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                <div>
+                    <h3 className="font-bold text-red-800">Generation Error</h3>
+                    <p className="text-red-600 mt-1 text-sm">{report.summary}</p>
+                </div>
+            </div>
+        )}
+
+        {report.status === 'pending' && (
+            <div className="flex items-center justify-center h-40 text-slate-400 italic border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50">
+                Awaiting data from specialist agents...
+            </div>
+        )}
+      </div>
     </div>
   );
 };
