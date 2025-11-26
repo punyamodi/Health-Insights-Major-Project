@@ -2,11 +2,17 @@
 import { GoogleGenAI, Chat } from "@google/genai";
 import { MedicalSpecialty, PatientHistory, SpecialistAnalysis } from '../types';
 
-if (!process.env.API_KEY) {
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+console.log('API Key Debug:', {
+  hasVITE_GEMINI_API_KEY: !!import.meta.env.VITE_GEMINI_API_KEY,
+  apiKeyLength: apiKey?.length,
+  apiKeyPrefix: apiKey?.substring(0, 10)
+});
+if (!apiKey) {
+  console.error("API_KEY not found. import.meta.env.VITE_GEMINI_API_KEY is missing.");
   throw new Error("API_KEY environment variable not set");
 }
-
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const ai = new GoogleGenAI({ apiKey });
 
 const formatPatientHistory = (history: PatientHistory): string => {
   if (Object.values(history).every(val => !val.trim())) {
@@ -107,7 +113,7 @@ export const analyzeWithSpecialistAgent = async (
     }
     
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.0-flash',
       contents: { parts: parts },
       config: {
         responseMimeType: "application/json",
@@ -148,7 +154,7 @@ export const generateFinalDiagnosis = async (
     const prompt = getFinalDiagnosisPromptTemplate(combinedReports, originalReport, formattedHistory);
     
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-pro',
+      model: 'gemini-2.0-flash',
       contents: prompt,
     });
     
@@ -161,7 +167,7 @@ export const generateFinalDiagnosis = async (
 
 export const getChatSession = (context: string): Chat => {
   return ai.chats.create({
-    model: 'gemini-2.5-flash',
+    model: 'gemini-2.0-flash',
     config: {
       systemInstruction: `You are a highly knowledgeable and empathetic medical AI assistant helping a user understand a complex medical diagnosis.
       
