@@ -69,6 +69,7 @@ type TabView = 'consensus' | 'specialists' | 'records';
 const App: React.FC = () => {
   const [view, setView] = useState<'landing' | 'main'>('landing');
   const [activeTab, setActiveTab] = useState<TabView>('specialists');
+  const [caseId, setCaseId] = useState<string>(() => new Date().getTime().toString().slice(-6));
   
   const [reportText, setReportText] = useState<string>('');
   const [patientHistory, setPatientHistory] = useState<PatientHistory>(initialPatientHistory);
@@ -123,6 +124,7 @@ const App: React.FC = () => {
     setChatContext('');
     setIsChatOpen(false);
     setActiveTab('specialists');
+    setCaseId(new Date().getTime().toString().slice(-6));
     setView('main');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -157,7 +159,7 @@ const App: React.FC = () => {
 
     const agentPromises = SPECIALIST_AGENTS.map(agent => {
         return analyzeWithSpecialistAgent(agent.name, text, history, img)
-            .then(analysis => {
+            .then((analysis) => {
                 const isError = typeof analysis === 'string';
                 setSpecialistReports(prev => ({
                     ...prev,
@@ -170,7 +172,7 @@ const App: React.FC = () => {
                 return { specialty: agent.name, analysis, error: isError };
             })
             .catch((error: any) => {
-                const errorMessage = `Error: ${error.message || String(error)}`;
+                const errorMessage = `Error: ${error instanceof Error ? error.message : String(error)}`;
                 setSpecialistReports(prev => ({
                     ...prev,
                     [agent.name]: { 
@@ -196,7 +198,7 @@ const App: React.FC = () => {
     try {
       const finalDiagnosis = await generateFinalDiagnosis(successfulReports, text, history);
       setFinalReport({ summary: finalDiagnosis, status: 'complete' });
-    } catch (error) {
+    } catch (error: any) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
       setFinalReport({ summary: `Failed to generate final report: ${errorMessage}`, status: 'error' });
     } finally {
@@ -242,9 +244,9 @@ const App: React.FC = () => {
             heightLeft -= pdfHeight;
         }
 
-        pdf.save('Health_Insights_Report.pdf');
+        pdf.save(`Health_Insights_Report_${caseId}.pdf`);
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error exporting to PDF:", error);
     } finally {
         setIsExporting(false);
@@ -340,7 +342,7 @@ const App: React.FC = () => {
                         <svg className="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                     </div>
                     <div>
-                         <h1 className="text-lg font-bold text-slate-900">Case Analysis #{new Date().getTime().toString().slice(-6)}</h1>
+                         <h1 className="text-lg font-bold text-slate-900">Case Analysis #{caseId}</h1>
                          <p className="text-sm text-slate-500">
                             {finalReport.status === 'complete' ? 'Assessment Finalized' : 'Multi-Agent Processing Active'}
                          </p>
@@ -463,7 +465,7 @@ const App: React.FC = () => {
               </div>
               <div style={{textAlign: 'right'}}>
                  <p style={{ fontSize: '12px', color: '#94a3b8' }}>Date: {new Date().toLocaleDateString()}</p>
-                 <p style={{ fontSize: '12px', color: '#94a3b8' }}>ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}</p>
+                 <p style={{ fontSize: '12px', color: '#94a3b8' }}>ID: {caseId}</p>
               </div>
           </div>
 
